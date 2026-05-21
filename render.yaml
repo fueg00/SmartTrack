@@ -2,20 +2,19 @@ services:
   # Backend API
   - type: web
     name: smarttrack-api
+    healthCheckPath: /api/health
     env: node
     rootDir: backend
-    plan: free
+    plan: starter  # Highly recommended to avoid 503 timeouts
     buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3001
-      - key: JWT_SECRET
-        generateValue: true
       - key: FRONTEND_URL
         value: https://getsmarttrack.io
+      - key: JWT_SECRET
+        generateValue: true
       - key: TURSO_DATABASE_URL
         sync: false
       - key: TURSO_AUTH_TOKEN
@@ -25,12 +24,12 @@ services:
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
       - key: PRO_PRICE_ID
-        sync: false
+        value: price_1TZfCj3BVkqzEwlbUsJ734nt
       - key: ENT_PRICE_ID
-        sync: false
+        value: price_1TYxSN3BVkqzEwlb3jEFIgHK
 
   # Frontend Static Site
-  - type: static
+  - type: static_site
     name: getsmarttrack-io
     env: static
     rootDir: frontend/dist
