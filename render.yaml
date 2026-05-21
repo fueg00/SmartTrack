@@ -5,7 +5,7 @@ services:
     healthCheckPath: /api/health
     env: node
     rootDir: backend
-    plan: starter  
+    plan: starter  # Use the $7/mo Starter Tier for 24/7 reliability
     buildCommand: npm install
     startCommand: npm start
     envVars:
@@ -27,17 +27,3 @@ services:
         value: price_1TZfCj3BVkqzEwlbUsJ734nt
       - key: ENT_PRICE_ID
         value: price_1TYxSN3BVkqzEwlb3jEFIgHK
-
-  # Frontend Static Site
-  - type: web
-    name: getsmarttrack-io
-    env: static
-    rootDir: frontend/dist
-    publishDir: .
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://smarttrack-api.onrender.com/api/*
-      - type: rewrite
-        source: /*
-        destination: /index.html
