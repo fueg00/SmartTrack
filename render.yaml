@@ -29,7 +29,7 @@ services:
         value: price_1TYxSN3BVkqzEwlb3jEFIgHK
 
   # Frontend Static Site
-  - type: static_site
+  - type: web
     name: getsmarttrack-io
     env: static
     rootDir: frontend/dist
