@@ -10,7 +10,7 @@ import Register from './components/Register';
 import LandingPage from './components/LandingPage';
 import FeedbackModal from './components/FeedbackModal';
 import Billing from './components/Billing';
-import Referrals from './components/Referrals';
+import Referrals from './components/ReferralSystem';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 
