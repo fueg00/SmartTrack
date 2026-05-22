@@ -223,9 +223,9 @@ function App() {
           />
         ) : view === 'billing' ? (
           <Billing />
-        ) : view === 'referrals' && ENABLE_REFERRALS ? (
-          <Referrals />
-        ) : view === 'privacy' ? (
+       // ) : view === 'referrals' && ENABLE_REFERRALS ? (
+       //   <Referrals />
+       // ) : view === 'privacy' ? (
           <PrivacyPolicy onBack={() => setView('dashboard')} />
         ) : view === 'terms' ? (
           <TermsOfService onBack={() => setView('dashboard')} />
