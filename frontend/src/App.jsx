@@ -10,7 +10,7 @@ import Register from './components/Register';
 import LandingPage from './components/LandingPage';
 import FeedbackModal from './components/FeedbackModal';
 import Billing from './components/Billing';
-import Referrals from './components/ReferralSystem';
+
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 
@@ -182,14 +182,7 @@ function App() {
         >
           Billing
         </button>
-        {ENABLE_REFERRALS && (
-          <button 
-            className={view === 'referrals' ? 'active' : ''} 
-            onClick={() => setView('referrals')}
-          >
-            Referrals
-          </button>
-        )}
+
         <button 
           className="btn-secondary" 
           onClick={() => setShowModal('feedback')}
@@ -223,8 +216,7 @@ function App() {
           />
         ) : view === 'billing' ? (
           <Billing />
-       // ) : view === 'referrals' && ENABLE_REFERRALS ? (
-       //   <Referrals />
+
        // ) : view === 'privacy' ? (
           <PrivacyPolicy onBack={() => setView('dashboard')} />
         ) : view === 'terms' ? (
