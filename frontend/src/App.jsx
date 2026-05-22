@@ -23,6 +23,8 @@ function App() {
     if (path === '/privacy') return 'privacy';
     if (path === '/terms') return 'terms';
     if (path === '/contact') return 'contact';
+    if (path === '/register') return 'register'; 
+    if (path === '/login') return 'login';       
 
     const params = new URLSearchParams(window.location.search);
     if (params.has('code') || params.has('inviteCode')) {
