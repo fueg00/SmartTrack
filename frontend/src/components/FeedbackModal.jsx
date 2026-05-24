@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as api from '../api';
+import { getErrorMessage } from '../utils/errorHandler';
 
 function FeedbackModal({ onClose, showToast }) {
   const [category, setCategory] = useState('General Feedback');
@@ -27,7 +28,7 @@ function FeedbackModal({ onClose, showToast }) {
       onClose();
     } catch (err) {
       console.error('Failed to submit feedback', err);
-      alert(err.response?.data?.error || 'Failed to submit feedback. Please try again.');
+      alert(getErrorMessage(err, 'Failed to submit feedback. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -35,12 +36,13 @@ function FeedbackModal({ onClose, showToast }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content auth-card" style={{ maxWidth: '500px' }}>
-        <h2>Give Feedback</h2>
+      <div className="modal">
+        <div className="modal-title">Give Feedback</div>
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Category</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Category</label>
             <select 
+              className="apple-select"
               value={category} 
               onChange={(e) => setCategory(e.target.value)}
               required
@@ -52,9 +54,10 @@ function FeedbackModal({ onClose, showToast }) {
               <option value="Other">Other</option>
             </select>
           </div>
-          <div className="form-group">
-            <label>Subject</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Subject</label>
             <input 
+              className="apple-input"
               type="text" 
               value={subject} 
               onChange={(e) => setSubject(e.target.value)} 
@@ -63,23 +66,24 @@ function FeedbackModal({ onClose, showToast }) {
               required 
             />
           </div>
-          <div className="form-group">
-            <label>Message</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Message</label>
             <textarea 
+              className="apple-textarea"
               value={message} 
               onChange={(e) => setMessage(e.target.value)} 
-              placeholder="Please provide details..."
+              placeholder="Please provide details…"
               rows="5"
               required
             />
-            <small style={{ color: '#666' }}>Min 10 characters</small>
+            <div className="footnote" style={{ marginTop: '6px' }}>Min 10 characters</div>
           </div>
-          <div className="modal-actions" style={{ marginTop: '20px' }}>
-            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>
+          <div className="modal-footer">
+            <button type="button" className="apple-btn apple-btn-secondary" onClick={onClose} disabled={loading}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Feedback'}
+            <button type="submit" className="apple-btn apple-btn-primary" disabled={loading}>
+              {loading ? 'Submitting…' : 'Submit Feedback'}
             </button>
           </div>
         </form>

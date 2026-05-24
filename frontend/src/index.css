@@ -1,111 +1,166 @@
+/**
+ * SmartTrack Apple-Style Design System
+ * Inspired by Apple HIG - Minimalist, Premium, High-Fidelity
+ */
+
+/* Import Inter font (already loaded via Google Fonts in index.html) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --text: #374151;
-  --text-h: #000000;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Colors - Light Mode */
+  --apple-black: #000000;
+  --apple-secondary-black: #1C1C1E;
+  --apple-white: #FFFFFF;
+  --apple-system-gray: #8E8E93;
+  --apple-system-gray-2: #AEAEB2;
+  --apple-system-gray-3: #C7C7CC;
+  --apple-system-gray-4: #D1D1D6;
+  --apple-system-gray-5: #E5E5EA;
+  --apple-system-gray-6: #F2F2F7;
+  --apple-blue: #007AFF;
+  --apple-green: #34C759;
+  --apple-yellow: #FFCC00;
+  --apple-orange: #FF9500;
+  --apple-red: #FF3B30;
+  
+  /* Typography - Inter as San Francisco alternative */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-h1: 700 34px/1.2 var(--font-family);
+  --font-h2: 700 28px/1.3 var(--font-family);
+  --font-h3: 600 22px/1.4 var(--font-family);
+  --font-body: 400 17px/1.5 var(--font-family);
+  --font-callout: 400 16px/1.4 var(--font-family);
+  --font-subhead: 400 15px/1.4 var(--font-family);
+  --font-footnote: 400 13px/1.3 var(--font-family);
+  --font-caption: 400 12px/1.3 var(--font-family);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Component Styles */
+  --card-radius: 16px;
+  --card-radius-sm: 12px;
+  --button-radius: 8px;
+  --input-radius: 10px;
+  --card-border: 1px solid rgba(0, 0, 0, 0.08);
+  --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.06);
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Layout */
+  --sidebar-width: 240px;
+  --page-padding: 40px;
+  --page-padding-mobile: 20px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --apple-black: #FFFFFF;
+    --apple-secondary-black: #EBEBF5;
+    --apple-white: #1C1C1E;
+    --apple-system-gray-6: #000000;
+    --card-border: 1px solid rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    --card-shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.3);
+    --glass-bg: rgba(28, 28, 30, 0.72);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #4b5563;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
+  font: var(--font-body);
+  font-family: var(--font-family);
+  color: var(--apple-black);
+  background-color: var(--apple-system-gray-6);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  min-height: 100vh;
+  background: var(--apple-system-gray-6);
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+/* Typography Classes */
+.h1, h1.apple-style {
+  font: var(--font-h1);
+  letter-spacing: -0.5px;
   margin: 0;
+  color: var(--apple-black);
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.h2, h2.apple-style {
+  font: var(--font-h2);
+  letter-spacing: -0.3px;
+  margin: 0;
+  color: var(--apple-black);
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.h3, h3.apple-style {
+  font: var(--font-h3);
+  letter-spacing: 0;
+  margin: 0;
+  color: var(--apple-black);
+}
+
+.body {
+  font: var(--font-body);
+  color: var(--apple-black);
+}
+
+.callout {
+  font: var(--font-callout);
+  color: var(--apple-black);
+}
+
+.subhead {
+  font: var(--font-subhead);
+  color: var(--apple-system-gray);
+}
+
+.footnote {
+  font: var(--font-footnote);
+  color: var(--apple-system-gray);
+}
+
+.caption {
+  font: var(--font-caption);
+  color: var(--apple-system-gray);
+}
+
+/* Links */
+a {
+  color: var(--apple-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Selection */
+::selection {
+  background: rgba(0, 122, 255, 0.2);
+  color: var(--apple-black);
 }

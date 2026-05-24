@@ -16,8 +16,8 @@ export default defineConfig({
         name: 'SmartTrack Inventory',
         short_name: 'SmartTrack',
         description: 'Inventory tracker for small and medium sized businesses',
-        theme_color: '#0056b3',
-        background_color: '#f8f9fa',
+        theme_color: '#007AFF',
+        background_color: '#F2F2F7',
         display: 'standalone',
         icons: [
           {

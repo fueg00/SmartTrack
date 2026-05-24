@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function StockAdjustmentForm({ product, onClose, onSubmit }) {
   const [amount, setAmount] = useState(0)
-  const [type, setType] = useState('add') // add, remove
+  const [type, setType] = useState('add')
   const [reason, setReason] = useState('New Shipment')
 
   const reasons = [
@@ -16,47 +16,54 @@ function StockAdjustmentForm({ product, onClose, onSubmit }) {
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h2>Adjust Stock: {product.name}</h2>
-        <p>Current Stock: <strong>{product.current_stock}</strong></p>
+        <div className="modal-title">Adjust Stock</div>
+        <div className="apple-card apple-card-sm" style={{ marginBottom: '24px', background: 'var(--apple-system-gray-6)' }}>
+          <div style={{ fontWeight: 600, marginBottom: '4px' }}>{product.name}</div>
+          <div className="subhead" style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>SKU: {product.sku}</span>
+            <span>Current Stock: <strong style={{ color: 'var(--apple-black)' }}>{product.current_stock}</strong></span>
+          </div>
+        </div>
+
         <form onSubmit={(e) => { 
           e.preventDefault(); 
           const change = type === 'add' ? parseInt(amount) : -parseInt(amount);
           onSubmit({ change_amount: change, reason }); 
         }}>
-          <div className="form-group">
-            <label>Adjustment Type</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Adjustment Type</label>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button 
                 type="button" 
-                className={`btn ${type === 'add' ? 'btn-success' : ''}`} 
-                style={{ flex: 1, border: '1px solid #ccc' }}
+                className={`apple-btn ${type === 'add' ? 'apple-btn-success' : 'apple-btn-secondary'}`}
+                style={{ flex: 1 }}
                 onClick={() => setType('add')}
               >
-                Add Stock
+                + Add Stock
               </button>
               <button 
                 type="button" 
-                className={`btn ${type === 'remove' ? 'btn-danger' : ''}`}
-                style={{ flex: 1, border: '1px solid #ccc' }}
+                className={`apple-btn ${type === 'remove' ? 'apple-btn-danger' : 'apple-btn-secondary'}`}
+                style={{ flex: 1 }}
                 onClick={() => setType('remove')}
               >
-                Remove Stock
+                − Remove Stock
               </button>
             </div>
           </div>
-          <div className="form-group">
-            <label>Amount</label>
-            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} min="1" required />
+          <div className="apple-form-group">
+            <label className="apple-form-label">Amount</label>
+            <input className="apple-input" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} min="1" required placeholder="Enter quantity" />
           </div>
-          <div className="form-group">
-            <label>Reason</label>
-            <select value={reason} onChange={(e) => setReason(e.target.value)} required>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Reason</label>
+            <select className="apple-select" value={reason} onChange={(e) => setReason(e.target.value)} required>
               {reasons.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
-          <div style={{ textAlign: 'right', marginTop: '20px' }}>
-            <button type="button" className="btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Update Inventory</button>
+          <div className="modal-footer">
+            <button type="button" className="apple-btn apple-btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="submit" className="apple-btn apple-btn-primary">Update Inventory</button>
           </div>
         </form>
       </div>

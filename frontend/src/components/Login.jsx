@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import * as api from '../api';
+import { getErrorMessage } from '../utils/errorHandler';
 
 function Login({ onLogin, onSwitchToRegister }) {
   const [email, setEmail] = useState('');
@@ -17,45 +18,46 @@ function Login({ onLogin, onSwitchToRegister }) {
       localStorage.setItem('user', JSON.stringify(res.data.user));
       onLogin(res.data.user);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to login');
+      setError(getErrorMessage(err, 'Failed to login'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h1>SmartTrack Login</h1>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-              className={error ? 'input-error' : ''}
-            />
-          </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              className={error ? 'input-error' : ''}
-            />
-          </div>
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '10px' }}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        <p style={{ marginTop: '20px', textAlign: 'center' }}>
-          Don't have an account? <button className="btn-link" onClick={onSwitchToRegister}>Register</button>
-        </p>
+    <div className="auth-card">
+      <h1>Welcome Back</h1>
+      <div className="auth-subtitle">Sign in to your SmartTrack account.</div>
+      {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="apple-form-group">
+          <label className="apple-form-label">Email</label>
+          <input 
+            className="apple-input"
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+            placeholder="you@company.com"
+          />
+        </div>
+        <div className="apple-form-group">
+          <label className="apple-form-label">Password</label>
+          <input 
+            className="apple-input"
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+            placeholder="Enter your password"
+          />
+        </div>
+        <button type="submit" className="apple-btn apple-btn-primary" disabled={loading} style={{ width: '100%', marginTop: '8px' }}>
+          {loading ? 'Signing in…' : 'Sign In'}
+        </button>
+      </form>
+      <div className="auth-switch">
+        Don't have an account? <button onClick={onSwitchToRegister}>Create Account</button>
       </div>
     </div>
   );

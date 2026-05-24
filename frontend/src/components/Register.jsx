@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const ENABLE_REFERRALS = import.meta.env.VITE_ENABLE_REFERRALS === 'true';
 
@@ -30,83 +31,73 @@ function Register({ onRegister, onSwitchToLogin }) {
     setError('');
     try {
       await api.register({ email, password, orgName, inviteCode, referralCode });
-      // After registration, log them in automatically
+      await new Promise(resolve => setTimeout(resolve, 1000));
       const res = await api.login({ email, password });
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       onRegister(res.data.user);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to register');
+      setError(getErrorMessage(err, 'Failed to register'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h1>Create SmartTrack Account</h1>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Business / Organization Name</label>
-            <input 
-              type="text" 
-              value={orgName} 
-              onChange={(e) => setOrgName(e.target.value)} 
-              required 
-              className={error ? 'input-error' : ''}
-            />
-          </div>
-          <div className="form-group">
-            <label>Admin Email</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-              className={error ? 'input-error' : ''}
-            />
-          </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              className={error ? 'input-error' : ''}
-            />
-          </div>
-          <div className="form-group">
-            <label>Invite Code (Optional for Beta Testers)</label>
-            <input 
-              type="text" 
-              value={inviteCode} 
-              onChange={(e) => setInviteCode(e.target.value)} 
-              placeholder="Enter BETAXXXX code"
-              className={error ? 'input-error' : ''}
-            />
-          </div>
-          {ENABLE_REFERRALS && (
-            <div className="form-group">
-              <label>Referral Code (Optional)</label>
-              <input 
-                type="text" 
-                value={referralCode} 
-                onChange={(e) => setReferralCode(e.target.value)} 
-                placeholder="Enter referral code"
-                className={error ? 'input-error' : ''}
-              />
-            </div>
-          )}
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '10px' }}>
-            {loading ? 'Creating account...' : 'Register'}
-          </button>
-        </form>
-        <p style={{ marginTop: '20px', textAlign: 'center' }}>
-          Already have an account? <button className="btn-link" onClick={onSwitchToLogin}>Login</button>
-        </p>
+    <div className="auth-card">
+      <h1>Get Started</h1>
+      <div className="auth-subtitle">Create your SmartTrack account.</div>
+      {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="apple-form-group">
+          <label className="apple-form-label">Business / Organization Name</label>
+          <input 
+            className="apple-input"
+            type="text" 
+            value={orgName} 
+            onChange={(e) => setOrgName(e.target.value)} 
+            required 
+            placeholder="Your Company, Inc."
+          />
+        </div>
+        <div className="apple-form-group">
+          <label className="apple-form-label">Admin Email</label>
+          <input 
+            className="apple-input"
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+            placeholder="you@company.com"
+          />
+        </div>
+        <div className="apple-form-group">
+          <label className="apple-form-label">Password</label>
+          <input 
+            className="apple-input"
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+            placeholder="Create a strong password"
+          />
+        </div>
+        <div className="apple-form-group">
+          <label className="apple-form-label">Invite Code <span className="footnote" style={{ fontWeight: 400 }}>(Optional for Beta Testers)</span></label>
+          <input 
+            className="apple-input"
+            type="text" 
+            value={inviteCode} 
+            onChange={(e) => setInviteCode(e.target.value)} 
+            placeholder="Enter BETAXXXX code"
+          />
+        </div>
+        <button type="submit" className="apple-btn apple-btn-primary" disabled={loading} style={{ width: '100%', marginTop: '8px' }}>
+          {loading ? 'Creating account…' : 'Create Account'}
+        </button>
+      </form>
+      <div className="auth-switch">
+        Already have an account? <button onClick={onSwitchToLogin}>Sign In</button>
       </div>
     </div>
   );
