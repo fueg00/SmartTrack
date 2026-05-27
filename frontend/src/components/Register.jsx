@@ -45,12 +45,12 @@ function Register({ onRegister, onSwitchToLogin }) {
 
   return (
     <div className="auth-card">
-      <h1>Get Started</h1>
-      <div className="auth-subtitle">Create your SmartTrack account.</div>
+      <h1>Welcome to SmartTrack</h1>
+      <div className="auth-subtitle">Let's set up your shop in a few seconds.</div>
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
         <div className="apple-form-group">
-          <label className="apple-form-label">Business / Organization Name</label>
+          <label className="apple-form-label">What's your shop called?</label>
           <input 
             className="apple-input"
             type="text" 
@@ -61,7 +61,7 @@ function Register({ onRegister, onSwitchToLogin }) {
           />
         </div>
         <div className="apple-form-group">
-          <label className="apple-form-label">Admin Email</label>
+          <label className="apple-form-label">Your work email</label>
           <input 
             className="apple-input"
             type="email" 

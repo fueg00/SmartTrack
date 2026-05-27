@@ -9,6 +9,8 @@ import StockAdjustmentForm from './components/StockAdjustmentForm';
 import Login from './components/Login';
 import Register from './components/Register';
 import LandingPage from './components/LandingPage';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import FeedbackModal from './components/FeedbackModal';
 import Billing from './components/Billing';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -25,6 +27,8 @@ function App() {
     if (path === '/contact') return 'contact';
     if (path === '/register') return 'register';
     if (path === '/login') return 'login';
+    if (path === '/forgot-password') return 'forgot-password';
+    if (path === '/reset-password') return 'reset-password';
 
     const params = new URLSearchParams(window.location.search);
     if (params.has('code') || params.has('inviteCode')) {
@@ -107,7 +111,7 @@ function App() {
     } else {
       setAuthView(target);
     }
-    const publicPaths = ['privacy', 'terms', 'contact', 'register', 'login'];
+    const publicPaths = ['privacy', 'terms', 'contact', 'register', 'login', 'forgot-password', 'reset-password'];
     const newPath = publicPaths.includes(target) ? `/${target}` : '/';
     if (window.location.pathname !== newPath) {
       window.history.pushState({}, '', newPath);
@@ -152,7 +156,11 @@ function App() {
     return (
       <div className="auth-container">
         {authView === 'login' ? (
-          <Login onLogin={setUser} onSwitchToRegister={() => setAuthView('register')} />
+          <Login onLogin={setUser} onSwitchToRegister={() => setAuthView('register')} onSwitchToForgotPassword={() => setAuthView('forgot-password')} />
+        ) : authView === 'forgot-password' ? (
+          <ForgotPassword onSwitchToLogin={() => setAuthView('login')} />
+        ) : authView === 'reset-password' ? (
+          <ResetPassword onSwitchToLogin={() => setAuthView('login')} />
         ) : (
           <Register onRegister={setUser} onSwitchToLogin={() => setAuthView('login')} />
         )}
