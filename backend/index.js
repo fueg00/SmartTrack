@@ -164,6 +164,105 @@ app.post('/api/auth/login', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * PASSWORD RESET
+ */
+
+// In-memory store for reset tokens (dev mode — in production, store in DB or Redis)
+const resetTokens = new Map();
+const TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
+
+// Clean expired tokens periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of resetTokens) {
+    if (value.expiresAt < now) resetTokens.delete(key);
+  }
+}, 10 * 60 * 1000); // every 10 minutes
+
+// Forgot Password — generate a reset token and log the URL
+app.post('/api/auth/forgot-password', asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    const err = new Error('Email is required');
+    err.status = 400;
+    throw err;
+  }
+
+  // Always return success (don't reveal whether email exists)
+  const users = await db.query('SELECT id, email FROM users WHERE email = ?', [email]);
+
+  if (users.length > 0) {
+    const user = users[0];
+    const token = require('crypto').randomBytes(32).toString('hex');
+    const expiresAt = Date.now() + TOKEN_EXPIRY_MS;
+
+    resetTokens.set(`${user.id}:${token}`, {
+      userId: user.id,
+      email: user.email,
+      expiresAt,
+    });
+
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?email=${encodeURIComponent(email)}&token=${token}`;
+
+    // Log to console (Demo Mode — no SMTP yet)
+    console.log('');
+    console.log('🔐 ===== PASSWORD RESET (DEMO MODE) =====');
+    console.log(`📧 Email: ${email}`);
+    console.log(`🔗 Reset URL: ${resetUrl}`);
+    console.log(`⏰ Expires: ${new Date(expiresAt).toISOString()}`);
+    console.log('=========================================');
+    console.log('');
+  }
+
+  res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
+}));
+
+// Reset Password — validate token and update password
+app.post('/api/auth/reset-password', asyncHandler(async (req, res) => {
+  const { email, token, password } = req.body;
+
+  if (!email || !token || !password) {
+    const err = new Error('Email, token, and password are required');
+    err.status = 400;
+    throw err;
+  }
+
+  if (password.length < 8) {
+    const err = new Error('Password must be at least 8 characters');
+    err.status = 400;
+    throw err;
+  }
+
+  // Find the user
+  const users = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+  if (users.length === 0) {
+    const err = new Error('Invalid or expired reset link');
+    err.status = 400;
+    throw err;
+  }
+
+  const user = users[0];
+  const storedToken = resetTokens.get(`${user.id}:${token}`);
+
+  if (!storedToken || storedToken.expiresAt < Date.now()) {
+    const err = new Error('Invalid or expired reset link');
+    err.status = 400;
+    throw err;
+  }
+
+  // Update password
+  const bcrypt = require('bcryptjs');
+  const passwordHash = await bcrypt.hash(password, 10);
+  await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, user.id]);
+
+  // Invalidate the token
+  resetTokens.delete(`${user.id}:${token}`);
+
+  res.json({ message: 'Password reset successfully' });
+}));
+
+/**
  * PRODUCTS
  */
 

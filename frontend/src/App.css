@@ -923,54 +923,302 @@
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .apple-table th {
-    display: none;
-  }
-  
-  .apple-table td {
-    display: block;
-    padding: 10px 16px;
-    border: none;
-    border-bottom: 1px solid var(--apple-system-gray-5);
-  }
-  
-  .apple-table td::before {
-    content: attr(data-label);
-    display: block;
-    font: var(--font-footnote);
-    font-weight: 600;
-    color: var(--apple-system-gray);
-    margin-bottom: 4px;
-  }
-  
-  .apple-table tr {
-    display: block;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--apple-system-gray-5);
-  }
-  
-  .apple-table tr:last-child {
-    border-bottom: none;
-  }
-  
-  .cell-actions {
-    flex-wrap: wrap;
-  }
-  
-  .modal {
-    padding: 24px;
-    border-radius: 16px;
-    max-width: 100%;
-    width: 95%;
-  }
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .apple-table th {
+        display: none;
+      }
+
+      .apple-table td {
+        display: block;
+        padding: 10px 16px;
+        border: none;
+        border-bottom: 1px solid var(--apple-system-gray-5);
+        animation: fadeIn 0.2s ease;
+      }
+
+      .apple-table td::before {
+        content: attr(data-label);
+        display: block;
+        font: var(--font-footnote);
+        font-weight: 600;
+        color: var(--apple-system-gray);
+        margin-bottom: 4px;
+      }
+
+      .apple-table tr {
+        display: block;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--apple-system-gray-5);
+      }
+
+      .apple-table tr:last-child {
+        border-bottom: none;
+      }
+
+      .cell-actions {
+        flex-wrap: wrap;
+      }
+
+      .modal {
+        padding: 24px;
+        border-radius: 16px;
+        max-width: 100%;
+        width: 95%;
+      }
+    }
+
+/* ==========================================
+   Apple-Like UI Polish — Smooth Animations
+   ========================================== */
+
+/* --- Page Content Entrance Animation --- */
+.main-area {
+  animation: contentFadeIn 0.35s ease;
+}
+
+@keyframes contentFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Staggered Card Entry --- */
+.stats-grid > .stat-card:nth-child(1) { animation: cardEntry 0.3s ease 0.05s both; }
+.stats-grid > .stat-card:nth-child(2) { animation: cardEntry 0.3s ease 0.10s both; }
+.stats-grid > .stat-card:nth-child(3) { animation: cardEntry 0.3s ease 0.15s both; }
+.stats-grid > .stat-card:nth-child(4) { animation: cardEntry 0.3s ease 0.20s both; }
+
+@keyframes cardEntry {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* --- Buttons: Refined Hover States --- */
+.apple-btn {
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.apple-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  border-radius: inherit;
+}
+
+.apple-btn:hover:not(:disabled)::after {
+  opacity: 1;
+}
+
+.apple-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.apple-btn-success:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+}
+
+.apple-btn-danger:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+.apple-btn-secondary:hover:not(:disabled) {
+  background: var(--apple-system-gray-4);
+  transform: translateY(-1px);
+}
+
+.apple-btn-ghost:hover:not(:disabled) {
+  background: rgba(0, 122, 255, 0.08);
+  transform: none;
+}
+
+/* --- Auth Card Entrance --- */
+.auth-card {
+  animation: authCardEntry 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes authCardEntry {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* --- Search Input Polish --- */
+.search-input-wrapper .apple-input {
+  transition: all var(--transition-normal);
+}
+
+.search-input-wrapper .apple-input:focus {
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* --- Sidebar Navigation More Refined --- */
+.sidebar-nav-item {
+  transition: all var(--transition-normal);
+  border-radius: 10px;
+}
+
+.sidebar-nav-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateX(2px);
+}
+
+.sidebar-nav-item.active {
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--apple-blue);
+  font-weight: 600;
+  transform: translateX(1px);
+}
+
+.sidebar-nav-item .nav-icon {
+  transition: transform var(--transition-normal);
+}
+
+.sidebar-nav-item:hover .nav-icon {
+  transform: scale(1.1);
+}
+
+/* --- Loading Spinner --- */
+.loading-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--apple-system-gray);
+  padding: 40px;
+  text-align: center;
+  font: var(--font-body);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loading-text::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--apple-system-gray-4);
+  border-top: 2px solid var(--apple-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* --- Table Row Entry Animation --- */
+.apple-table tbody tr {
+  animation: rowEntry 0.25s ease both;
+}
+
+.apple-table tbody tr:nth-child(1) { animation-delay: 0.01s; }
+.apple-table tbody tr:nth-child(2) { animation-delay: 0.03s; }
+.apple-table tbody tr:nth-child(3) { animation-delay: 0.05s; }
+.apple-table tbody tr:nth-child(4) { animation-delay: 0.07s; }
+.apple-table tbody tr:nth-child(5) { animation-delay: 0.09s; }
+.apple-table tbody tr:nth-child(6) { animation-delay: 0.11s; }
+.apple-table tbody tr:nth-child(7) { animation-delay: 0.13s; }
+.apple-table tbody tr:nth-child(8) { animation-delay: 0.15s; }
+
+@keyframes rowEntry {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* --- Toast Refinements --- */
+.apple-toast {
+  animation: toastSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes toastSlideUp {
+  from { transform: translate(-50%, 30px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+/* --- Mobile Nav Hover --- */
+.mobile-nav-item {
+  transition: all var(--transition-fast);
+  border-radius: 8px;
+  padding: 6px 16px;
+}
+
+.mobile-nav-item:active {
+  background: rgba(0, 122, 255, 0.08);
+  transform: scale(0.95);
+}
+
+/* --- Billing Tier Cards --- */
+.tier-card {
+  transition: all var(--transition-normal);
+}
+
+.tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Activity Item Hover --- */
+.activity-item {
+  transition: all var(--transition-fast);
+  border-radius: 10px;
+}
+
+.activity-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+  transform: translateX(2px);
+}
+
+/* --- Offline Banner Refined --- */
+.offline-banner {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* --- Info Box for Demo Mode --- */
+.info-box {
+  animation: fadeIn 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* --- Modal Overlay Refined --- */
+.modal-overlay {
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  animation: modalSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(30px) scale(0.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
 }
