@@ -1222,3 +1222,242 @@
   from { transform: translateY(30px) scale(0.96); opacity: 0; }
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
+
+/* ==========================================
+   Owner Insights — Exclusive Dashboard Section
+   ========================================== */
+
+.owner-insights {
+  margin: 32px 0 24px;
+  animation: contentEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.owner-insights-header {
+  margin-bottom: 20px;
+}
+
+.owner-insights-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--apple-blue);
+  background: rgba(0, 122, 255, 0.08);
+  padding: 6px 14px;
+  border-radius: 10px;
+  letter-spacing: 0.3px;
+}
+
+.owner-insights-subtitle {
+  font-size: 13px;
+  color: var(--apple-system-gray);
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+.owner-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .owner-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.owner-stat-card {
+  padding: 20px;
+  text-align: left;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s ease;
+}
+
+.owner-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.owner-stat-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.owner-stat-label {
+  font-size: 12px;
+  color: var(--apple-system-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.owner-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--apple-label);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.owner-stat-delta {
+  font-size: 12px;
+  color: var(--apple-system-gray);
+  margin-top: 4px;
+}
+
+.owner-restock-section {
+  margin-bottom: 24px;
+}
+
+.owner-restock-card {
+  padding: 20px;
+}
+
+.owner-restock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.owner-restock-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--apple-label);
+}
+
+.owner-restock-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--apple-blue);
+  letter-spacing: -0.3px;
+}
+
+.owner-restock-status {
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.owner-restock-status.ok {
+  background: rgba(52, 199, 89, 0.1);
+  color: #34C759;
+}
+
+.owner-restock-status.warn {
+  background: rgba(255, 149, 0, 0.1);
+  color: #FF9500;
+}
+
+.owner-restock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.owner-restock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--apple-separator);
+}
+
+.owner-restock-item:last-child {
+  border-bottom: none;
+}
+
+.owner-restock-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--apple-label);
+}
+
+.owner-restock-item-detail {
+  font-size: 12px;
+  color: var(--apple-system-gray);
+  font-weight: 500;
+}
+
+.owner-restock-more {
+  font-size: 12px;
+  color: var(--apple-system-gray);
+  text-align: center;
+  padding: 8px;
+  font-weight: 500;
+}
+
+.owner-section-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--apple-label);
+  margin-bottom: 12px;
+}
+
+.owner-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.owner-category-card {
+  padding: 16px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s ease;
+}
+
+.owner-category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.owner-category-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--apple-label);
+  margin-bottom: 8px;
+}
+
+.owner-category-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.owner-category-count {
+  font-size: 12px;
+  color: var(--apple-system-gray);
+}
+
+.owner-category-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--apple-blue);
+}
+
+.owner-category-bar {
+  height: 4px;
+  background: var(--apple-separator);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.owner-category-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--apple-blue), #5856D6);
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.owner-category-stock {
+  font-size: 11px;
+  color: var(--apple-system-gray);
+}

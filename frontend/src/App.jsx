@@ -279,7 +279,7 @@ function App() {
 
         {/* Views */}
         {view === 'dashboard' ? (
-          <Dashboard onAdjustStock={(p) => { setSelectedProduct(p); setShowModal('adjust'); }} />
+          <Dashboard user={user} onAdjustStock={(p) => { setSelectedProduct(p); setShowModal('adjust'); }} />
         ) : view === 'products' ? (
           <ProductList 
             categories={categories}

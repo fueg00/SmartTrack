@@ -1,21 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import * as api from '../api';
 import { getErrorMessage } from '../utils/errorHandler';
+import OwnerInsights from './OwnerInsights';
 
-function Dashboard({ onAdjustStock }) {
+function Dashboard({ user, onAdjustStock }) {
   const [stats, setStats] = useState({ totalProducts: 0, inventoryValue: 0, lowStockCount: 0 })
   const [billing, setBilling] = useState({ subscription_tier: 'Free', subscription_status: 'active' })
   const [lowStockItems, setLowStockItems] = useState([])
+  const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const isOwner = user?.role === 'Owner';
+
   useEffect(() => {
     setError(null);
-    Promise.all([api.getDashboardStats(), api.getLowStockItems(), api.getBillingStatus()])
-      .then(([statsRes, lowStockRes, billingRes]) => {
+    const promises = [api.getDashboardStats(), api.getLowStockItems(), api.getBillingStatus()];
+    if (isOwner) {
+      promises.push(api.getProducts());
+    }
+    Promise.all(promises)
+      .then(([statsRes, lowStockRes, billingRes, productsRes]) => {
         setStats(statsRes.data)
         setLowStockItems(lowStockRes.data)
         setBilling(billingRes.data)
+        if (productsRes) {
+          setProducts(productsRes.data)
+        }
         setLoading(false)
       })
       .catch(err => {
@@ -23,10 +34,9 @@ function Dashboard({ onAdjustStock }) {
         setError(getErrorMessage(err, 'Failed to load dashboard data'))
         setLoading(false)
       })
-  }, [])
+  }, [isOwner])
 
   if (loading) return <div className="loading-text">Loading dashboard…</div>
-
   if (error) return (
     <div className="error-container">
       <div className="error-message">{error}</div>
@@ -45,8 +55,8 @@ function Dashboard({ onAdjustStock }) {
           </span>
         </div>
         {billing.subscription_tier === 'Free' && (
-          <button 
-            onClick={() => window.location.hash = '#billing'} 
+          <button
+            onClick={() => window.location.hash = '#billing'}
             className="apple-btn apple-btn-ghost apple-btn-sm"
             style={{ color: 'var(--apple-blue)', fontWeight: 600 }}
           >
@@ -70,6 +80,11 @@ function Dashboard({ onAdjustStock }) {
           <div className={`stat-value ${stats.lowStockCount > 0 ? 'danger' : ''}`}>{stats.lowStockCount}</div>
         </div>
       </div>
+
+      {/* Owner Insights — exclusive section for the business owner */}
+      {isOwner && products.length > 0 && (
+        <OwnerInsights products={products} lowStockItems={lowStockItems} />
+      )}
 
       {/* Low Stock Section */}
       <div className="section-title">Low Stock Alerts</div>
