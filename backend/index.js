@@ -163,6 +163,161 @@ app.post('/api/auth/login', asyncHandler(async (req, res) => {
   res.json({ token, user: { id: user.id, email: user.email, role: user.role, organization_id: user.organization_id } });
 }));
 
+// Get current user profile with org subscription info
+app.get('/api/auth/me', authenticateToken, asyncHandler(async (req, res) => {
+  const user = req.user;
+  const orgs = await db.query(
+    'SELECT id, name, subscription_tier, subscription_status, is_beta, trial_end_date FROM organizations WHERE id = ?',
+    [user.organization_id]
+  );
+  const org = orgs[0] || {};
+  const users = await db.query('SELECT COUNT(*) as count FROM users WHERE organization_id = ?', [user.organization_id]);
+  let tier = org.is_beta && org.subscription_tier === 'Free' ? 'Pro' : org.subscription_tier;
+  const seatLimits = { Free: 1, Pro: 5, Enterprise: Infinity };
+  res.json({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    organization_id: user.organization_id,
+    organization_name: org.name,
+    subscription_tier: tier,
+    subscription_status: org.subscription_status,
+    is_beta: !!org.is_beta,
+    trial_end_date: org.trial_end_date,
+    seats: { used: users[0].count, limit: seatLimits[tier] || 1 }
+  });
+}));
+
+/**
+ * USER MANAGEMENT (Owner only)
+ */
+
+// List users in organization
+app.get('/api/users', authenticateToken, asyncHandler(async (req, res) => {
+  const orgId = req.user.organization_id;
+  const users = await db.query('SELECT id, email, role, created_at FROM users WHERE organization_id = ? ORDER BY created_at', [orgId]);
+  
+  // Get org tier for seat limit
+  const orgs = await db.query('SELECT subscription_tier, is_beta FROM organizations WHERE id = ?', [orgId]);
+  let tier = orgs[0]?.subscription_tier || 'Free';
+  if (orgs[0]?.is_beta && tier === 'Free') tier = 'Pro';
+  const { maxUsers } = { Free: 1, Pro: 5, Enterprise: Infinity }[tier] || 1;
+  
+  res.json({ users, seats: { used: users.length, limit: maxUsers, tier } });
+}));
+
+// Invite user (Owner only) — creates a user record
+app.post('/api/users/invite', authenticateToken, asyncHandler(async (req, res) => {
+  const { email, role } = req.body;
+  const orgId = req.user.organization_id;
+  
+  if (req.user.role !== 'Owner') {
+    const err = new Error('Only Owners can invite users');
+    err.status = 403;
+    throw err;
+  }
+  if (!email || !role) {
+    const err = new Error('Email and role are required');
+    err.status = 400;
+    throw err;
+  }
+  if (!['Manager', 'Staff'].includes(role)) {
+    const err = new Error('Role must be Manager or Staff');
+    err.status = 400;
+    throw err;
+  }
+  
+  // Check seat limit
+  const orgs = await db.query('SELECT subscription_tier, is_beta FROM organizations WHERE id = ?', [orgId]);
+  let tier = orgs[0]?.subscription_tier || 'Free';
+  if (orgs[0]?.is_beta && tier === 'Free') tier = 'Pro';
+  const tierLimits = { Free: { maxUsers: 1 }, Pro: { maxUsers: 5 }, Enterprise: { maxUsers: Infinity } };
+  const limit = tierLimits[tier]?.maxUsers || 1;
+  
+  if (limit !== Infinity) {
+    const userCount = await db.query('SELECT COUNT(*) as count FROM users WHERE organization_id = ?', [orgId]);
+    if (userCount[0].count >= limit) {
+      const err = new Error(`User limit reached for ${tier} tier (${limit} users). Please upgrade.`);
+      err.status = 403;
+      throw err;
+    }
+  }
+  
+  // Check for duplicate
+  const existing = await db.query('SELECT id FROM users WHERE email = ? AND organization_id = ?', [email, orgId]);
+  if (existing.length > 0) {
+    const err = new Error('User already exists in your organization');
+    err.status = 409;
+    throw err;
+  }
+  
+  // Create user with a default password (Demo Mode — log to console)
+  const defaultPassword = 'Welcome' + Math.random().toString(36).substring(2, 8);
+  const bcrypt = require('bcryptjs');
+  const passwordHash = await bcrypt.hash(defaultPassword, 10);
+  
+  await db.query(
+    'INSERT INTO users (organization_id, email, password_hash, role) VALUES (?, ?, ?, ?)',
+    [orgId, email, passwordHash, role]
+  );
+  
+  console.log('');
+  console.log('👥 ===== USER INVITED (DEMO MODE) =====');
+  console.log(`📧 Email: ${email}`);
+  console.log(`🔑 Default Password: ${defaultPassword}`);
+  console.log(`🎭 Role: ${role}`);
+  console.log('======================================');
+  console.log('');
+  
+  res.status(201).json({ message: 'User invited successfully', email, role });
+}));
+
+// Update user role (Owner only)
+app.put('/api/users/:id/role', authenticateToken, asyncHandler(async (req, res) => {
+  const { role } = req.body;
+  const orgId = req.user.organization_id;
+  
+  if (req.user.role !== 'Owner') {
+    const err = new Error('Only Owners can change roles');
+    err.status = 403;
+    throw err;
+  }
+  if (!['Owner', 'Manager', 'Staff'].includes(role)) {
+    const err = new Error('Invalid role');
+    err.status = 400;
+    throw err;
+  }
+  
+  // Can't change own role from Owner
+  if (req.params.id == req.user.id && role !== 'Owner') {
+    const err = new Error('Cannot remove your own Owner role');
+    err.status = 400;
+    throw err;
+  }
+  
+  await db.query('UPDATE users SET role = ? WHERE id = ? AND organization_id = ?', [role, req.params.id, orgId]);
+  res.json({ message: 'Role updated' });
+}));
+
+// Remove user (Owner only)
+app.delete('/api/users/:id', authenticateToken, asyncHandler(async (req, res) => {
+  const orgId = req.user.organization_id;
+  
+  if (req.user.role !== 'Owner') {
+    const err = new Error('Only Owners can remove users');
+    err.status = 403;
+    throw err;
+  }
+  if (req.params.id == req.user.id) {
+    const err = new Error('Cannot remove yourself');
+    err.status = 400;
+    throw err;
+  }
+  
+  await db.query('DELETE FROM users WHERE id = ? AND organization_id = ?', [req.params.id, orgId]);
+  res.json({ message: 'User removed' });
+}));
+
 /**
  * PASSWORD RESET
  */
