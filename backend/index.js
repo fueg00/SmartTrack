@@ -419,6 +419,231 @@ app.post('/api/feedback', authenticateToken, asyncHandler(async (req, res) => {
   res.status(201).json({ message: 'Feedback submitted successfully' });
 }));
 
+/**
+ * SUPPLIERS
+ */
+
+// Get all suppliers
+app.get('/api/suppliers', authenticateToken, asyncHandler(async (req, res) => {
+  const orgId = req.user.organization_id;
+  const suppliers = await db.query('SELECT * FROM suppliers WHERE organization_id = ? ORDER BY name', [orgId]);
+  res.json(suppliers);
+}));
+
+// Create supplier
+app.post('/api/suppliers', authenticateToken, asyncHandler(async (req, res) => {
+  const { name, email, phone, lead_time_days, payment_terms, notes } = req.body;
+  const orgId = req.user.organization_id;
+  if (!name) {
+    const err = new Error('Supplier name is required');
+    err.status = 400;
+    throw err;
+  }
+  await db.query(
+    'INSERT INTO suppliers (organization_id, name, email, phone, lead_time_days, payment_terms, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [orgId, name, email || '', phone || '', lead_time_days || 7, payment_terms || 'Net 30', notes || '']
+  );
+  res.status(201).json({ message: 'Supplier created' });
+}));
+
+// Update supplier
+app.put('/api/suppliers/:id', authenticateToken, asyncHandler(async (req, res) => {
+  const { name, email, phone, lead_time_days, payment_terms, notes } = req.body;
+  const orgId = req.user.organization_id;
+  await db.query(
+    'UPDATE suppliers SET name=?, email=?, phone=?, lead_time_days=?, payment_terms=?, notes=? WHERE id=? AND organization_id=?',
+    [name, email || '', phone || '', lead_time_days || 7, payment_terms || 'Net 30', notes || '', req.params.id, orgId]
+  );
+  res.json({ message: 'Supplier updated' });
+}));
+
+// Delete supplier
+app.delete('/api/suppliers/:id', authenticateToken, asyncHandler(async (req, res) => {
+  const orgId = req.user.organization_id;
+  await db.query('DELETE FROM suppliers WHERE id=? AND organization_id=?', [req.params.id, orgId]);
+  res.json({ message: 'Supplier deleted' });
+}));
+
+/**
+ * INVENTORY RUNWAY & RESTOCK PLANNER
+ */
+
+// Calculate runway for all products (days of stock remaining based on sales velocity)
+app.get('/api/runway/calculate', authenticateToken, asyncHandler(async (req, res) => {
+  const orgId = req.user.organization_id;
+
+  // Get all products with supplier info
+  const products = await db.query(
+    `SELECT p.*, c.name as category_name, s.name as supplier_name, s.lead_time_days, s.email as supplier_email
+     FROM products p
+     LEFT JOIN categories c ON p.category_id = c.id
+     LEFT JOIN suppliers s ON p.supplier_id = s.id
+     WHERE p.organization_id = ?
+     ORDER BY p.name`,
+    [orgId]
+  );
+
+  // Calculate sales velocity from last 30 days of stock transactions (outgoing only)
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const transactions = await db.query(
+    `SELECT product_id, SUM(ABS(change_amount)) as total_out
+     FROM stock_transactions
+     WHERE organization_id = ?
+       AND change_amount < 0
+       AND created_at >= ?
+     GROUP BY product_id`,
+    [orgId, thirtyDaysAgo]
+  );
+
+  const velocityMap = {};
+  for (const txn of transactions) {
+    velocityMap[txn.product_id] = txn.total_out / 30; // daily avg
+  }
+
+  // Build runway data
+  const runwayData = products.map(p => {
+    const stock = Number(p.current_stock) || 0;
+    const reorder = Number(p.reorder_point) || 0;
+    const dailyVelocity = velocityMap[p.id] || 0;
+    const runwayDays = dailyVelocity > 0 ? Math.floor(stock / dailyVelocity) : null;
+    const leadTime = Number(p.lead_time_days) || null;
+    const isAtRisk = runwayDays !== null && leadTime !== null && runwayDays <= leadTime;
+    const needsRestock = stock <= reorder;
+    const qtyToOrder = needsRestock ? (reorder * 2) - stock : 0; // order to 2x reorder point
+    const estCost = qtyToOrder * (Number(p.unit_cost) || 0);
+
+    return {
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      category_name: p.category_name,
+      current_stock: stock,
+      reorder_point: reorder,
+      unit_cost: p.unit_cost,
+      unit_price: p.unit_price,
+      supplier_id: p.supplier_id,
+      supplier_name: p.supplier_name,
+      supplier_email: p.supplier_email,
+      supplier_lead_time: leadTime,
+      daily_sales_velocity: Math.round(dailyVelocity * 100) / 100,
+      runway_days: runwayDays,
+      runway_label: runwayDays === null ? 'No sales data' : `${runwayDays} day${runwayDays !== 1 ? 's' : ''}`,
+      is_at_risk: isAtRisk,
+      needs_restock: needsRestock,
+      recommended_order_qty: qtyToOrder,
+      estimated_restock_cost: estCost
+    };
+  });
+
+  res.json({
+    generated_at: new Date().toISOString(),
+    lookup_days: 30,
+    items: runwayData,
+    summary: {
+      total_products: runwayData.length,
+      at_risk_count: runwayData.filter(r => r.is_at_risk).length,
+      needs_restock_count: runwayData.filter(r => r.needs_restock).length,
+      total_restock_cost: runwayData.reduce((sum, r) => sum + r.estimated_restock_cost, 0)
+    }
+  });
+}));
+
+// Generate a purchase order preview/email draft for selected items
+app.post('/api/runway/generate-po', authenticateToken, asyncHandler(async (req, res) => {
+  const { product_ids } = req.body;
+  const orgId = req.user.organization_id;
+
+  if (!product_ids || !Array.isArray(product_ids) || product_ids.length === 0) {
+    const err = new Error('product_ids must be a non-empty array');
+    err.status = 400;
+    throw err;
+  }
+
+  const placeholders = product_ids.map(() => '?').join(',');
+  const products = await db.query(
+    `SELECT p.*, s.name as supplier_name, s.email as supplier_email, s.lead_time_days
+     FROM products p
+     LEFT JOIN suppliers s ON p.supplier_id = s.id
+     WHERE p.organization_id = ? AND p.id IN (${placeholders})`,
+    [orgId, ...product_ids]
+  );
+
+  // Build PO items (restock to 2x reorder point)
+  const poItems = products.map(p => {
+    const stock = Number(p.current_stock) || 0;
+    const reorder = Number(p.reorder_point) || 0;
+    const qty = Math.max(0, (reorder * 2) - stock);
+    return {
+      product_id: p.id,
+      product_name: p.name,
+      sku: p.sku,
+      current_stock: stock,
+      reorder_point: reorder,
+      order_qty: qty,
+      unit_cost: p.unit_cost,
+      line_total: qty * (Number(p.unit_cost) || 0),
+      supplier_name: p.supplier_name,
+      supplier_email: p.supplier_email,
+      lead_time_days: p.lead_time_days
+    };
+  });
+
+  const totalCost = poItems.reduce((sum, i) => sum + i.line_total, 0);
+
+  // Group by supplier for email draft
+  const bySupplier = {};
+  for (const item of poItems) {
+    const key = item.supplier_name || 'Unknown Supplier';
+    if (!bySupplier[key]) {
+      bySupplier[key] = { supplier_name: key, email: item.supplier_email || '', lead_time: item.lead_time_days || 7, items: [], total: 0 };
+    }
+    bySupplier[key].items.push(item);
+    bySupplier[key].total += item.line_total;
+  }
+
+  res.json({
+    generated_at: new Date().toISOString(),
+    total_items: poItems.length,
+    total_cost: totalCost,
+    items: poItems,
+    by_supplier: Object.values(bySupplier)
+  });
+}));
+
+// Auto-generate email body for a supplier PO
+app.post('/api/runway/po-email', authenticateToken, asyncHandler(async (req, res) => {
+  const { supplier_name, items, org_name } = req.body;
+
+  if (!supplier_name || !items || !Array.isArray(items)) {
+    const err = new Error('supplier_name and items array are required');
+    err.status = 400;
+    throw err;
+  }
+
+  const orgDisplay = org_name || 'Our Organization';
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const total = items.reduce((s, i) => s + (i.line_total || 0), 0);
+
+  let body = `Subject: Purchase Order — ${orgDisplay} (${today})\n\n`;
+  body += `Dear ${supplier_name},\n\n`;
+  body += `Please supply the following items for ${orgDisplay}:\n\n`;
+  body += `PO #: PO-${Date.now().toString(36).toUpperCase()}\n`;
+  body += `Date: ${today}\n\n`;
+  body += `Items:\n`;
+  body += `─${'─'.repeat(60)}\n`;
+
+  for (const item of items) {
+    body += `${item.order_qty}x ${item.product_name} (${item.sku}) — ${item.line_total.toFixed(2)}\n`;
+  }
+
+  body += `─${'─'.repeat(60)}\n`;
+  body += `Total Estimated: ${total.toFixed(2)}\n\n`;
+  body += `Please confirm availability and estimated shipping date.\n\n`;
+  body += `Best regards,\n${orgDisplay}\n`;
+
+  res.json({ email_body: body });
+}));
+
 // Error Handler Middleware
 app.use(errorHandler);
 
