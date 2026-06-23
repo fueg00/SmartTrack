@@ -51,4 +51,15 @@ export const submitFeedback = (data) => api.post('/feedback', data);
 export const getReferralStats = () => api.get('/referrals/stats');
 export const inviteBusiness = (email) => api.post('/referrals/invite', { email });
 
+// Suppliers
+export const getSuppliers = () => api.get('/suppliers');
+export const createSupplier = (data) => api.post('/suppliers', data);
+export const updateSupplier = (id, data) => api.put(`/suppliers/${id}`, data);
+export const deleteSupplier = (id) => api.delete(`/suppliers/${id}`);
+
+// Runway & Restock
+export const getRunwayData = () => api.get('/runway/calculate');
+export const generatePO = (productIds) => api.post('/runway/generate-po', { product_ids: productIds });
+export const generatePOEmail = (data) => api.post('/runway/po-email', data);
+
 export default api;

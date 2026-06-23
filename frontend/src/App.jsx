@@ -6,6 +6,8 @@ import Dashboard from './components/Dashboard';
 import ProductList from './components/ProductList';
 import ProductForm from './components/ProductForm';
 import StockAdjustmentForm from './components/StockAdjustmentForm';
+import RunwayPlanner from './components/RunwayPlanner';
+import SupplierManager from './components/SupplierManager';
 import Login from './components/Login';
 import Register from './components/Register';
 import LandingPage from './components/LandingPage';
@@ -130,6 +132,8 @@ function App() {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'products', label: 'Inventory', icon: '📦' },
+    { id: 'runway', label: 'Runway', icon: '📡' },
+    { id: 'suppliers', label: 'Suppliers', icon: '🏭' },
     { id: 'billing', label: 'Billing', icon: '💳' },
   ];
 
@@ -251,11 +255,13 @@ function App() {
         <div className="page-header">
           <div className="page-header-left">
             <div className="h1">
-              {view === 'dashboard' ? 'Dashboard' : view === 'products' ? 'Inventory' : 'Billing'}
+              {view === 'dashboard' ? 'Dashboard' : view === 'products' ? 'Inventory' : view === 'runway' ? 'Runway & Restock' : view === 'suppliers' ? 'Suppliers' : 'Billing'}
             </div>
             <div className="subhead">
               {view === 'dashboard' && 'Overview of your inventory'}
               {view === 'products' && 'Manage your products and stock levels'}
+              {view === 'runway' && 'Inventory runway, risk analysis, and restock planning'}
+              {view === 'suppliers' && 'Manage your vendors and their lead times'}
               {view === 'billing' && 'Manage your subscription'}
             </div>
           </div>
@@ -287,6 +293,10 @@ function App() {
             onEdit={(p) => { setSelectedProduct(p); setShowModal('edit'); }}
             onAdjustStock={(p) => { setSelectedProduct(p); setShowModal('adjust'); }}
           />
+        ) : view === 'runway' ? (
+          <RunwayPlanner user={user} />
+        ) : view === 'suppliers' ? (
+          <SupplierManager />
         ) : view === 'billing' ? (
           <Billing />
         ) : view === 'privacy' ? (

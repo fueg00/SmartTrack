@@ -1461,3 +1461,35 @@
   font-size: 11px;
   color: var(--apple-system-gray);
 }
+/* Runway */
+.runway-planner{animation:contentEnter .35s cubic-bezier(0.22,1,0.36,1) both}
+.runway-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:768px){.runway-summary-grid{grid-template-columns:repeat(2,1fr)}}
+.runway-summary-card{padding:18px;text-align:center}
+.runway-summary-val{font-size:24px;font-weight:700;letter-spacing:-.3px}
+.runway-summary-lbl{font-size:11px;color:var(--apple-system-gray);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:4px}
+.runway-risk .runway-summary-val{color:#FF3B30}.runway-warn .runway-summary-val{color:#FF9500}
+.runway-row{cursor:pointer}.runway-row:hover{background:rgba(0,122,255,.04)}
+.runway-row.row-selected{background:rgba(0,122,255,.08)}
+.runway-row.row-risk{border-left:3px solid #FF3B30}.runway-row.row-warn{border-left:3px solid #FF9500}
+.runway-checkbox{width:16px;height:16px;cursor:pointer}
+.runway-product-name{font-weight:500;font-size:13px}
+.runway-product-sku{font-size:11px;color:var(--apple-system-gray)}
+.runway-cell-num{text-align:center;font-variant-numeric:tabular-nums}
+.runway-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;border-radius:6px;white-space:nowrap}
+.badge-critical{background:rgba(255,59,48,.12);color:#FF3B30}
+.badge-warning{background:rgba(255,149,0,.12);color:#FF9500}
+.badge-ok{background:rgba(52,199,89,.12);color:#34C759}
+.badge-neutral{background:rgba(142,142,147,.12);color:var(--apple-system-gray)}
+.runway-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px}
+.tag-risk{background:rgba(255,59,48,.15);color:#FF3B30}
+.tag-warn{background:rgba(255,149,0,.15);color:#FF9500}
+.tag-ok{background:rgba(52,199,89,.12);color:#34C759}
+.po-supplier-card{padding:18px;margin-bottom:12px}
+.po-supplier-header{display:flex;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.po-supplier-name{font-size:15px;font-weight:600}
+.po-supplier-meta{font-size:12px;color:var(--apple-system-gray)}
+.po-supplier-actions{display:flex;gap:8px}
+.po-supplier-items{border-top:1px solid var(--apple-separator);padding-top:8px}
+.po-item{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.po-item-name{color:var(--apple-label)}.po-item-cost{color:var(--apple-system-gray);font-weight:500}
