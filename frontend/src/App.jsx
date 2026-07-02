@@ -8,6 +8,7 @@ import ProductForm from './components/ProductForm';
 import StockAdjustmentForm from './components/StockAdjustmentForm';
 import RunwayPlanner from './components/RunwayPlanner';
 import SupplierManager from './components/SupplierManager';
+import UserManagement from './components/UserManagement';
 import Login from './components/Login';
 import Register from './components/Register';
 import LandingPage from './components/LandingPage';
@@ -134,6 +135,7 @@ function App() {
     { id: 'products', label: 'Inventory', icon: '📦' },
     { id: 'runway', label: 'Runway', icon: '📡' },
     { id: 'suppliers', label: 'Suppliers', icon: '🏭' },
+    { id: 'users', label: 'Users', icon: '👥' },
     { id: 'billing', label: 'Billing', icon: '💳' },
   ];
 
@@ -255,13 +257,14 @@ function App() {
         <div className="page-header">
           <div className="page-header-left">
             <div className="h1">
-              {view === 'dashboard' ? 'Dashboard' : view === 'products' ? 'Inventory' : view === 'runway' ? 'Runway & Restock' : view === 'suppliers' ? 'Suppliers' : 'Billing'}
+              {view === 'dashboard' ? 'Dashboard' : view === 'products' ? 'Inventory' : view === 'runway' ? 'Runway & Restock' : view === 'suppliers' ? 'Suppliers' : view === 'users' ? 'Team' : 'Billing'}
             </div>
             <div className="subhead">
               {view === 'dashboard' && 'Overview of your inventory'}
               {view === 'products' && 'Manage your products and stock levels'}
               {view === 'runway' && 'Inventory runway, risk analysis, and restock planning'}
               {view === 'suppliers' && 'Manage your vendors and their lead times'}
+              {view === 'users' && 'Manage team members and roles'}
               {view === 'billing' && 'Manage your subscription'}
             </div>
           </div>
@@ -297,6 +300,8 @@ function App() {
           <RunwayPlanner user={user} />
         ) : view === 'suppliers' ? (
           <SupplierManager />
+        ) : view === 'users' ? (
+          <UserManagement user={user} />
         ) : view === 'billing' ? (
           <Billing />
         ) : view === 'privacy' ? (

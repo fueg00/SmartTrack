@@ -63,3 +63,10 @@ export const generatePO = (productIds) => api.post('/runway/generate-po', { prod
 export const generatePOEmail = (data) => api.post('/runway/po-email', data);
 
 export default api;
+
+// User management
+export const getUsers = () => api.get('/users');
+export const inviteUser = (data) => api.post('/users/invite', data);
+export const updateUserRole = (id, role) => api.put(`/users/${id}/role`, { role });
+export const deleteUser = (id) => api.delete(`/users/${id}`);
+export const getMe = () => api.get('/auth/me');
